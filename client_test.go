@@ -1,19 +1,18 @@
-package httpclient_test
+package httpclient
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"gitlab.ml.rc.dating.com/rc-ml-team/golang-pkg/httpclient"
 )
 
 type Suite struct {
 	suite.Suite
-	c       httpclient.Client
+	c       *client
 	server  *httptest.Server
 	baseUrl string
 }
@@ -23,7 +22,7 @@ func TestClient(t *testing.T) {
 }
 
 func (s *Suite) SetupSuite() {
-	s.c = httpclient.New()
+	s.c = New()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/get", func(w http.ResponseWriter, r *http.Request) {
@@ -34,22 +33,6 @@ func (s *Suite) SetupSuite() {
 		w.Write([]byte(`{"test":"data"}`))
 		w.WriteHeader(http.StatusOK)
 	})
-	mux.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	})
-
-	mux.HandleFunc("/put", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPut {
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"bad_req"}`))
-	})
 
 	s.server = httptest.NewServer(mux)
 	s.baseUrl = s.server.URL
@@ -59,45 +42,19 @@ func (s *Suite) TearDownSuite() {
 	s.server.Close()
 }
 
-func (s *Suite) TestGet() {
+func (s *Suite) TestDo() {
 
-	successResp := &struct {
-		Test string `json:"test"`
-	}{}
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/get", s.baseUrl), http.NoBody)
+	resp, err := s.c.Do(req)
+	if !s.NoError(err) {
+		return
+	}
+	s.Equal(http.StatusOK, resp.StatusCode)
 
-	param := httpclient.RequestParams{
-		URL:           fmt.Sprintf("%s/get", s.baseUrl),
-		SuccessResult: successResp,
-	}
-	resp, err := s.c.GET(context.TODO(), param)
-	if s.NoError(err) {
-		s.Equal(http.StatusOK, resp.StatusCode)
-		s.Equal("data", successResp.Test)
-	}
-}
+	var data map[string]any
 
-func (s *Suite) TestPut() {
+	err = json.NewDecoder(resp.Body).Decode(&data)
+	s.NoError(err)
+	s.Equal("data", data["test"])
 
-	errResp := &struct {
-		Err string `json:"error"`
-	}{}
-
-	param := httpclient.RequestParams{
-		URL:         fmt.Sprintf("%s/put", s.baseUrl),
-		ErrorResult: errResp,
-	}
-	resp, err := s.c.PUT(context.TODO(), param)
-	if s.NoError(err) {
-		s.Equal(http.StatusBadRequest, resp.StatusCode)
-		s.Equal("bad_req", errResp.Err)
-	}
-}
-func (s *Suite) TestPost() {
-	param := httpclient.RequestParams{
-		URL: fmt.Sprintf("%s/post", s.baseUrl),
-	}
-	resp, err := s.c.POST(context.TODO(), param)
-	if s.NoError(err) {
-		s.Equal(http.StatusOK, resp.StatusCode)
-	}
 }
