@@ -6,15 +6,15 @@ import (
 )
 
 type Client interface {
-	Get(
+	GET(
 		ctx context.Context,
 		param RequestParams,
 	) (*http.Response, error)
-	Put(
+	PUT(
 		ctx context.Context,
 		param RequestParams,
 	) (*http.Response, error)
-	Post(
+	POST(
 		ctx context.Context,
 		param RequestParams,
 	) (*http.Response, error)

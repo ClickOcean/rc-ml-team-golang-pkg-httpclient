@@ -69,7 +69,7 @@ func (s *Suite) TestGet() {
 		URL:           fmt.Sprintf("%s/get", s.baseUrl),
 		SuccessResult: successResp,
 	}
-	resp, err := s.c.Get(context.TODO(), param)
+	resp, err := s.c.GET(context.TODO(), param)
 	if s.NoError(err) {
 		s.Equal(http.StatusOK, resp.StatusCode)
 		s.Equal("data", successResp.Test)
@@ -86,7 +86,7 @@ func (s *Suite) TestPut() {
 		URL:         fmt.Sprintf("%s/put", s.baseUrl),
 		ErrorResult: errResp,
 	}
-	resp, err := s.c.Put(context.TODO(), param)
+	resp, err := s.c.PUT(context.TODO(), param)
 	if s.NoError(err) {
 		s.Equal(http.StatusBadRequest, resp.StatusCode)
 		s.Equal("bad_req", errResp.Err)
@@ -96,7 +96,7 @@ func (s *Suite) TestPost() {
 	param := httpclient.RequestParams{
 		URL: fmt.Sprintf("%s/post", s.baseUrl),
 	}
-	resp, err := s.c.Post(context.TODO(), param)
+	resp, err := s.c.POST(context.TODO(), param)
 	if s.NoError(err) {
 		s.Equal(http.StatusOK, resp.StatusCode)
 	}

@@ -35,7 +35,7 @@ func (c *client) WithTimeout(sec int) *client {
 	return c
 }
 
-func (c client) Get(
+func (c client) GET(
 	ctx context.Context,
 	param RequestParams,
 ) (*http.Response, error) {
@@ -48,7 +48,7 @@ func (c client) Get(
 	return r.Response, r.Err
 }
 
-func (c client) Put(
+func (c client) PUT(
 	ctx context.Context,
 	param RequestParams,
 ) (*http.Response, error) {
@@ -62,7 +62,7 @@ func (c client) Put(
 	return r.Response, r.Err
 }
 
-func (c client) Post(
+func (c client) POST(
 	ctx context.Context,
 	param RequestParams,
 ) (*http.Response, error) {
