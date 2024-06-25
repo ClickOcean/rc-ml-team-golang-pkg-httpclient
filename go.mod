@@ -1,4 +1,4 @@
-module gitlab.ml.rc.dating.com/rc-ml-team/golang-pkg/httpclient
+module github.com/ClickOcean/rc-ml-team-golang-pkg-httpclient
 
 go 1.20
 
